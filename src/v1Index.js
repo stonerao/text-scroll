@@ -131,7 +131,7 @@ var EarthInitializeV5 = function () {
         //- 添加监听事件
         window.addEventListener('resize', onWindowResize, false);
     }
- 
+
 
     var _Materials = {
         basic: function (param) { return new THREE.MeshBasicMaterial(param); },
@@ -179,22 +179,31 @@ var EarthInitializeV5 = function () {
             }
         `
     }
-    var texture_up;
-    this.planeUp = []
+    this.planeUp = [];
+    var arrp = [];
     function random() {
         return THREE.Math.randFloat(-150, 150);
+    }
+    function ran() {
+        return THREE.Math.randInt(0, 9);
     }
     function initContent() {
         // 生成内容
         var w = 16, h = 64;
-        texture_up = createCanvas(w, h, '101010', 4); // 展示的字体
-        texture_up.wrapS = THREE.RepeatWrapping;
-        texture_up.wrapT = THREE.RepeatWrapping;
+        var texturNumber = 4; // 切换数量
+        for (var i = 0; i < texturNumber; i++) {
+            var t = createCanvas(w, h, `${ran()}${ran()}${ran()}${ran()}${ran()}${ran()}`, 4); // 展示的字体
+            t.wrapS = THREE.RepeatWrapping;
+            t.wrapT = THREE.RepeatWrapping;
+            arrp.push(t)
+        }
         for (let index = 0; index < 40; index++) {
-            var p = addUpPlane(w, h, texture_up, new THREE.Vector3(random(), random(), random()));
+            // 坐标
+            var p = addUpPlane(w, h, arrp[0], new THREE.Vector3(random(), random(), random()));
             thm.scene.add(p);
             thm.planeUp.push(p);
         }
+
     }
     /**
      * [addUpPlane 创建mesh]
@@ -255,6 +264,7 @@ var EarthInitializeV5 = function () {
         ctx.textBaseline = 'left'//这个是文本基线的意思
         ctx.fillStyle = '#ffffff';//你的字体颜色  
         for (let i = 0; i < text.length; i++) {
+            // ctx.translate();    
             ctx.fillText(text[i], (width - size) / 2, i * (height / (text.length - 1)));
         }
         var textur = new THREE.Texture(canvas);
@@ -285,22 +295,34 @@ var EarthInitializeV5 = function () {
         }
     }
 
-
+    var num = 0;
+    var _index = 0;
     function animation(dt) {
         //-
         if (thm._Fly) {
             thm._Fly.animation(dt);
         }
-        // 设置纹理偏移
-        if (texture_up) {
-            texture_up.offset.y -= dt / 4;
-
-        }
+        arrp.forEach(function (e) {
+            e.offset.y -= dt / 4;
+            e.offset.y -= dt / 4;
+        })
+        num += dt;
         thm.planeUp.forEach(function (elem) {
             if (elem.material) {
                 elem.material.uniforms.time.value += dt / 5;
             }
         })
+        if (num > 0.2 && arrp.length > 1) {
+            num -= 0.2;
+            _index++;
+            thm.planeUp.forEach(function (elem) {
+                if (elem.material) {
+                    elem.material.uniforms.texture.value = arrp[_index % arrp.length]
+                    elem.material.needsUpdate = true;
+                }
+            }) 
+        }
+
     }
 
     function renderers() {
