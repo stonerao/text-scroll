@@ -303,8 +303,7 @@ var EarthInitializeV5 = function () {
             thm._Fly.animation(dt);
         }
         arrp.forEach(function (e) {
-            e.offset.y -= dt / 4;
-            e.offset.y -= dt / 4;
+            e.offset.y -= dt / 4; 
         })
         num += dt;
         thm.planeUp.forEach(function (elem) {
